@@ -1,0 +1,18 @@
+#operationsTable i.fa-cc-mastercard {
+        color:pink;
+}
+.minus_form_group {
+	border: 1px solid red;
+}
+.minus_form_group .input-group-append {
+	border-left: 1px solid red;
+	color: red;
+}
+
+.plus_form_group {
+	border: 1px solid red;
+}
+.plus_form_group {
+	border-left: 1px solid green;
+	color: green;
+}
