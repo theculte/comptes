@@ -109,6 +109,9 @@
                 <ul class="navbar-nav ml-auto  margin_right">
                     <li  class="nav-item {!! (Request::is('/') ? 'active' : '') !!}">
                         <a href="{{ route('home') }}" class="nav-link"> Comptes</a>
+		    </li>
+		    <li  class="nav-item {!! (Request::is('month') ? 'active' : '') !!}">
+                        <a href="{{ route('month') }}" class="nav-link"> Mois</a>
                     </li>
 		    <li  class="nav-item {!! (Request::is('stats') ? 'active' : '') !!}">
                         <a href="{{ route('stats') }}" class="nav-link"> Stats</a>

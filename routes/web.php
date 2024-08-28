@@ -272,6 +272,10 @@ Route::group(['middleware' => 'user'], function () {
 
 	Route::get('/', ['as' => 'home', 'uses' => 'IndexController@home']);
 	Route::get('stats', 'IndexController@stats')->name('stats');
+	Route::get('month', 'IndexController@month')->name('month');
+	Route::get('operations/monthIns', 'IndexController@monthIns')->name('operations.monthIns');
+	Route::get('operations/monthDep', 'IndexController@monthDep')->name('operations.monthDep');
+	Route::get('operations/monthRec', 'IndexController@monthRec')->name('operations.monthRec');
 	Route::get('operations/data', 'IndexController@data')->name('operations.data');
 	Route::get('operations/dataInc', 'IndexController@dataInc')->name('operations.dataInc');
 	Route::get('operations/deleteInc', 'IndexController@deleteInc')->name('operations.deleteInc');

@@ -110,6 +110,16 @@ class IndexController extends Controller
 	return view('index')->withSolde($solde)->withOperationTypes($operationTypes)->withCategories($categories)->withBar($bar)->withSoldeEndMonth($soldeEndMonth)->withDateEndMonth($dateEndMonth);
     }
 
+    public function month()
+    {
+
+	    $ins = Operation::whereMonth('date', '3')
+		    		->where('amount', '>', 0)
+		    		->get();
+
+	return view('month')->withIns($ins);
+    }
+
     public function stats()
     {
 	$categories = Category::where('id_parent', '0')->get();
@@ -189,6 +199,215 @@ class IndexController extends Controller
 
 	return view('stats', ['line' => $line])->withCategories($categories);
     }
+
+	public function monthIns()
+	{
+
+	$operations = Operation::select(['id', 'date', 'title', 'detail', 'amount'])->where('amount', '>', 0)->whereMonth('date', 3)->whereYear('date', 2024);
+    
+        return DataTables::of($operations)
+            ->editColumn('date', function ($operations) {
+                Carbon::setLocale('FR');
+                return Carbon::createFromFormat('Y-m-d', $operations->date)->format('d M');
+            })
+            ->editColumn('amount', function ($operations) {
+                if ($operations->amount > 0) {
+                        return '<span style="color:green;font-weight:bold">+'.$operations->amount.'</span>';
+                } else {
+                        return '<span style="color:red;font-weight:bold">'.$operations->amount.'</span>';
+                }
+            })
+            ->addColumn('superDetail', function ($operations) {
+                $operation = Operation::find($operations->id);
+
+                $return = "";
+
+                if ($operation->operation_type > 0) {
+                        if ($operation->operationType->category->id_parent > 0) {
+
+                                if (strlen($operation->operationType->category->parent->icon)) {
+                                        $return .= '<span data-toggle="modal" class="typeOp" data-target="#catModal" name="'.$operation->id.'" style="color:'.$operation->operationType->category->parent->color.'">' . $operation->operationType->category->parent->icon . '</span> ';
+                                } else {
+                                        $return .= $operation->operationType->category->parent->name . ' - ';
+                                }
+                        }
+			if (strlen($operation->operationType->category->icon)) {
+                                $return .= '<span data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp" style="color:'.$operation->operationType->category->color.'">' . $operation->operationType->category->icon . '</span> ';
+                        } else {
+                                $return .= $operation->operationType->category->name . '-';
+                        }
+
+                        $return .= $operation->operationType->name;
+
+                        return $return;
+
+                } else if ($operation->id_category > 0) {
+
+                        if ($operation->category->id_parent > 0) {
+                                if (strlen($operation->category->parent->icon)) {
+                                        $return .= '<span data-toggle="modal" class="typeOp" data-target="#catModal" name="'.$operation->id.'" style="color:'.$operation->category->parent->color.'">' . $operation->category->parent->icon . '</span> ';
+                                } else {
+                                        $return .= $operation->category->parent->name . ' - ';
+                                }
+                        }
+                        if (strlen($operation->category->icon)) {
+                                $return .= '<span data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp" style="color:'.$operation->category->color.'">' . $operation->category->icon . '</span> ';
+                        } else {
+                                $return .= $operation->category->name . '-';
+                        }
+                        $return .= $operation->detail;
+                        return $return;
+                } else {
+                        return $operation->detail .'<span><button data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp">Quésako <i class="fas fa-question"></i></button></span>';
+                }
+            })
+            ->removeColumn('id')
+            ->rawColumns(['amount', 'superDetail'])
+            ->setRowClass(function ($operations) {
+                return '';
+                return $operations->id % 2 == 0 ? 'alert-info' : 'alert-warning';
+            })
+            ->make(true);
+    }
+
+    public function monthDep()
+        {
+
+        $operations = Operation::select(['id', 'date', 'title', 'detail', 'amount'])->where('amount', '<', 0)->whereMonth('date', 3)->whereYear('date', 2024);
+
+        return DataTables::of($operations)
+            ->editColumn('date', function ($operations) {
+                Carbon::setLocale('FR');
+                return Carbon::createFromFormat('Y-m-d', $operations->date)->format('d M');
+            })
+            ->editColumn('amount', function ($operations) {
+                if ($operations->amount > 0) {
+                        return '<span style="color:green;font-weight:bold">+'.$operations->amount.'</span>';
+                } else {
+                        return '<span style="color:red;font-weight:bold">'.$operations->amount.'</span>';
+                }
+            })
+            ->addColumn('superDetail', function ($operations) {
+                $operation = Operation::find($operations->id);
+
+                $return = "";
+
+                if ($operation->operation_type > 0) {
+                        if ($operation->operationType->category->id_parent > 0) {
+
+                                if (strlen($operation->operationType->category->parent->icon)) {
+                                        $return .= '<span data-toggle="modal" class="typeOp" data-target="#catModal" name="'.$operation->id.'" style="color:'.$operation->operationType->category->parent->color.'">' . $operation->operationType->category->parent->icon . '</span> ';
+                                } else {
+                                        $return .= $operation->operationType->category->parent->name . ' - ';
+                                }
+                        }
+                        if (strlen($operation->operationType->category->icon)) {
+                                $return .= '<span data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp" style="color:'.$operation->operationType->category->color.'">' . $operation->operationType->category->icon . '</span> ';
+                        } else {
+                                $return .= $operation->operationType->category->name . '-';
+                        }
+
+                        $return .= $operation->operationType->name;
+
+                        return $return;
+		} else if ($operation->id_category > 0) {
+
+                        if ($operation->category->id_parent > 0) {
+                                if (strlen($operation->category->parent->icon)) {
+                                        $return .= '<span data-toggle="modal" class="typeOp" data-target="#catModal" name="'.$operation->id.'" style="color:'.$operation->category->parent->color.'">' . $operation->category->parent->icon . '</span> ';
+                                } else {
+                                        $return .= $operation->category->parent->name . ' - ';
+                                }
+                        }
+                        if (strlen($operation->category->icon)) {
+                                $return .= '<span data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp" style="color:'.$operation->category->color.'">' . $operation->category->icon . '</span> ';
+                        } else {
+                                $return .= $operation->category->name . '-';
+                        }
+                        $return .= $operation->detail;
+                        return $return;
+                } else {
+                        return $operation->detail .'<span><button data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp">Quésako <i class="fas fa-question"></i></button></span>';
+                }
+            })
+            ->removeColumn('id')
+            ->rawColumns(['amount', 'superDetail'])
+            ->setRowClass(function ($operations) {
+                return '';
+                return $operations->id % 2 == 0 ? 'alert-info' : 'alert-warning';
+            })
+            ->make(true);
+    }
+
+    public function monthRec()
+        {
+
+		$operations = OperationInc::select(['id', 'date', 'amount'])->where('amount', '<', 0)->where('period', '=', 'month');
+// ajouter restriction sur date depart de l operation
+        return DataTables::of($operations)
+            ->editColumn('date', function ($operations) {
+                Carbon::setLocale('FR');
+                return Carbon::createFromFormat('Y-m-d', $operations->date)->format('d M');
+            })
+            ->editColumn('amount', function ($operations) {
+                if ($operations->amount > 0) {
+                        return '<span style="color:green;font-weight:bold">+'.$operations->amount.'</span>';
+                } else {
+                        return '<span style="color:red;font-weight:bold">'.$operations->amount.'</span>';
+                }
+            })
+            ->addColumn('superDetail', function ($operations) {
+                $operation = OperationInc::find($operations->id);
+
+                $return = "";
+
+                if ($operation->id_operation_type > 0) {
+                        if ($operation->operationType->category->id_parent > 0) {
+
+                                if (strlen($operation->operationType->category->parent->icon)) {
+                                        $return .= '<span data-toggle="modal" class="typeOp" data-target="#catModal" name="'.$operation->id.'" style="color:'.$operation->operationType->category->parent->color.'">' . $operation->operationType->category->parent->icon . '</span> ';
+                                } else {
+                                        $return .= $operation->operationType->category->parent->name . ' - ';
+                                }
+                        }
+                        if (strlen($operation->operationType->category->icon)) {
+                                $return .= '<span data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp" style="color:'.$operation->operationType->category->color.'">' . $operation->operationType->category->icon . '</span> ';
+                        } else {
+                                $return .= $operation->operationType->category->name . '-';
+                        }
+
+                        $return .= $operation->operationType->name;
+
+                        return $return;
+		} else if ($operation->id_category > 0) {
+
+                        if ($operation->category->id_parent > 0) {
+                                if (strlen($operation->category->parent->icon)) {
+                                        $return .= '<span data-toggle="modal" class="typeOp" data-target="#catModal" name="'.$operation->id.'" style="color:'.$operation->category->parent->color.'">' . $operation->category->parent->icon . '</span> ';
+                                } else {
+                                        $return .= $operation->category->parent->name . ' - ';
+                                }
+                        }
+                        if (strlen($operation->category->icon)) {
+                                $return .= '<span data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp" style="color:'.$operation->category->color.'">' . $operation->category->icon . '</span> ';
+                        } else {
+                                $return .= $operation->category->name . '-';
+                        }
+                        $return .= $operation->name;
+                        return $return;
+                } else {
+                        return $operation->name .'<span><button data-toggle="modal" data-target="#catModal" name="'.$operation->id.'" class="typeOp">Quésako <i class="fas fa-question"></i></button></span>';
+                }
+            })
+            ->removeColumn('id')
+            ->rawColumns(['amount', 'superDetail'])
+            ->setRowClass(function ($operations) {
+                return '';
+                return $operations->id % 2 == 0 ? 'alert-info' : 'alert-warning';
+            })
+            ->make(true);
+    }
+
 
 	public function data()
     {
